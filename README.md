@@ -1,2 +1,2 @@
-# spu-myproject-rts
-SPU game development  project management course 2024
+# my-spu-rts
+game development  project management course 2024
