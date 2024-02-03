@@ -11,8 +11,19 @@ public enum UnitState
     Attack,
     Die
 }
+
+[System.Serializable]
+public struct UnitCost
+{
+    public int food;
+    public int wood;
+    public int gold;
+    public int stone;
+
+}
 public class Unit : MonoBehaviour
 {
+ 
 
     [SerializeField] private int id;
     public int ID {  get { return id; } set { id = value; } }
@@ -53,10 +64,18 @@ public class Unit : MonoBehaviour
     private NavMeshAgent navAgent;
     public NavMeshAgent NavMeshAgent { get { return navAgent; } }
 
-    [SerializeField] private Fraction fraction;
+    [SerializeField] private Faction fraction;
 
     [SerializeField] private GameObject selectionVisual;
     public GameObject SelectionVisual { get { return selectionVisual;} }
+
+    [SerializeField] private UnitCost unitCost;
+    public UnitCost UnitCost { get { return unitCost; } }
+
+    [SerializeField] private float unitWaitTime = 0.1f;
+    public float UnitWaitTime { get { return unitWaitTime; } }
+
+
     private void Awake()
     {
         navAgent = GetComponent<NavMeshAgent>();
@@ -70,6 +89,51 @@ public class Unit : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        switch(state)
+        {
+            case UnitState.Move:
+                MoveUpdate();
+                break;
+        }
     }
+
+    public void ToggleSelectionVisual(bool flag)
+    {
+        if(selectionVisual != null)
+            selectionVisual.SetActive(flag);
+    }
+
+    public void SetState(UnitState _toState)
+    {
+        state =_toState;
+
+        if(state == UnitState.Idle)
+        {
+            navAgent.isStopped = true;
+            navAgent.ResetPath();
+        }
+    }
+
+    public void MoveToPosition(Vector3 _dest)
+    {
+        if(navAgent != null)
+        {
+            navAgent.SetDestination(_dest);
+            navAgent.isStopped =false;
+        }
+
+        SetState(UnitState.Move);
+    }
+
+    private void MoveUpdate()
+    {
+        float distannce = Vector3.Distance(transform.position, navAgent.destination);
+
+        if(distannce <= 1f)
+        {
+            SetState(UnitState.Idle);
+        }
+    }
+
+
 }
